@@ -10,8 +10,8 @@ import pt.psoft.g1.psoftg1.lendingmanagement.model.Lending;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-08T22:19:32+0100",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Microsoft)"
+    date = "2025-10-28T23:15:06+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251001-1143, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class LendingViewMapperImpl extends LendingViewMapper {
@@ -28,10 +28,10 @@ public class LendingViewMapperImpl extends LendingViewMapper {
         lendingView.setLendingNumber( map( lending.getLendingNumber() ) );
         lendingView.setBookTitle( map( lendingBookTitle( lending ) ) );
         lendingView.setReturnedDate( lending.getReturnedDate() );
-        lendingView.setStartDate( lending.getStartDate() );
-        lendingView.setLimitDate( lending.getLimitDate() );
-        lendingView.setDaysUntilReturn( mapOpt( lending.getDaysUntilReturn() ) );
         lendingView.setDaysOverdue( mapOpt( lending.getDaysOverdue() ) );
+        lendingView.setDaysUntilReturn( mapOpt( lending.getDaysUntilReturn() ) );
+        lendingView.setLimitDate( lending.getLimitDate() );
+        lendingView.setStartDate( lending.getStartDate() );
 
         lendingView.setFineValueInCents( lending.getFineValueInCents().orElse(null) );
 

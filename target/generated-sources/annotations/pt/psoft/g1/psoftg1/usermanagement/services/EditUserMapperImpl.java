@@ -8,8 +8,8 @@ import pt.psoft.g1.psoftg1.usermanagement.model.User;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-08T22:19:33+0100",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Microsoft)"
+    date = "2025-10-28T23:15:06+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251001-1143, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class EditUserMapperImpl extends EditUserMapper {
@@ -20,11 +20,11 @@ public class EditUserMapperImpl extends EditUserMapper {
             return null;
         }
 
-        String password = null;
         String username = null;
+        String password = null;
 
-        password = map( request.getPassword() );
         username = map( request.getUsername() );
+        password = map( request.getPassword() );
 
         User user = new User( username, password );
 
@@ -52,14 +52,14 @@ public class EditUserMapperImpl extends EditUserMapper {
                 user.getAuthorities().addAll( set );
             }
         }
+        if ( request.getUsername() != null ) {
+            user.setUsername( map( request.getUsername() ) );
+        }
         if ( request.getPassword() != null ) {
             user.setPassword( map( request.getPassword() ) );
         }
         if ( request.getName() != null ) {
             user.setName( map( request.getName() ) );
-        }
-        if ( request.getUsername() != null ) {
-            user.setUsername( map( request.getUsername() ) );
         }
     }
 }
