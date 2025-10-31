@@ -20,6 +20,12 @@ public class ProjectConfig {
     @Value("${external.api.ninjas.key}")
     private String ninjasApiKey;
 
+    @Value("${external.api.googlebooks.url}")
+    private String googleBooksApiUrl;
+
+    @Value("${external.api.googlebooks.key}")
+    private String googleBooksApiKey;
+
     // Add more external API properties as needed
     // @Value("${external.api.another.url}")
     // private String anotherApiUrl;

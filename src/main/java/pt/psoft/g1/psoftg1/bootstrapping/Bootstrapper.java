@@ -421,7 +421,8 @@ public class Bootstrapper implements CommandLineRunner {
         final var readerDetails6 = readerRepository.findByReaderNumber("2024/6");
 
         List<ReaderDetails> readers = new ArrayList<>();
-        if(readerDetails1.isPresent() && readerDetails2.isPresent() && readerDetails3.isPresent()){
+        if(readerDetails1.isPresent() && readerDetails2.isPresent() && readerDetails3.isPresent()
+                && readerDetails4.isPresent() && readerDetails5.isPresent() && readerDetails6.isPresent()){
             readers = List.of(new ReaderDetails[]{readerDetails1.get(), readerDetails2.get(), readerDetails3.get(),
                             readerDetails4.get(), readerDetails5.get(), readerDetails6.get()});
         }
@@ -429,6 +430,11 @@ public class Bootstrapper implements CommandLineRunner {
         LocalDate startDate;
         LocalDate returnedDate;
         Lending lending;
+
+        // Only create lendings if we have the required books and readers
+        if (books.isEmpty() || readers.isEmpty()) {
+            return;
+        }
 
         //Lendings 1 through 3 (late, returned)
         for(i = 0; i < 3; i++){
