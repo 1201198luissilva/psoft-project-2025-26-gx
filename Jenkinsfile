@@ -181,7 +181,7 @@ pipeline {
             if (isUnix()) {
               sh "sed -e 's|\\${IMAGE_NAME}|${env.IMAGE_NAME}|g' -e 's|\\${IMAGE_TAG}|${env.IMAGE_TAG}|g' ${localTemplate} > ${localGenerated} || true"
             } else {
-              bat "powershell -Command \"(Get-Content ${localTemplate}) -replace '\\\\$\\{IMAGE_NAME\\}', '${env.IMAGE_NAME}' -replace '\\\\$\\{IMAGE_TAG\\}', '${env.IMAGE_TAG}' | Set-Content ${localGenerated}\""
+              bat """powershell -Command "(Get-Content ${localTemplate}) -replace '\\\\\\\$\\{IMAGE_NAME\\}', '${env.IMAGE_NAME}' -replace '\\\\\\\$\\{IMAGE_TAG\\}', '${env.IMAGE_TAG}' | Set-Content ${localGenerated}" """
             }
 
             // LOCAL DEPLOYMENT: Run docker-compose directly on Jenkins agent (Windows with Docker Desktop)
