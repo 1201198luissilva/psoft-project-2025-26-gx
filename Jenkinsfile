@@ -9,6 +9,11 @@
 pipeline {
   agent any
 
+  tools {
+    maven 'Maven-3.9'
+    jdk 'JDK-17'
+  }
+
   options {
     timestamps()
     buildDiscarder(logRotator(numToKeepStr: '30'))
@@ -97,9 +102,9 @@ pipeline {
         script {
           // Build without running tests first (faster iteration)
           if (isUnix()) {
-            sh "${env.MVNW} -B -DskipTests=true package"
+            sh "mvn -B -DskipTests=true package"
           } else {
-            bat "${env.MVNW} -B -DskipTests=true package"
+            bat "mvn -B -DskipTests=true package"
           }
         }
       }
@@ -109,9 +114,9 @@ pipeline {
       steps {
         script {
           if (isUnix()) {
-            sh "${env.MVNW} -B test"
+            sh "mvn -B test"
           } else {
-            bat "${env.MVNW} -B test"
+            bat "mvn -B test"
           }
         }
       }
