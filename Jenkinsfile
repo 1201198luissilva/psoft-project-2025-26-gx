@@ -110,9 +110,10 @@ pipeline {
       }
     }
 
-    stage('Test') {
+    stage('Unit Tests') {
       steps {
         script {
+          echo "Running unit tests..."
           if (isUnix()) {
             sh "mvn -B test"
           } else {
@@ -124,6 +125,75 @@ pipeline {
         always {
           // Publish JUnit results (Maven Surefire)
           junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+        }
+      }
+    }
+
+    stage('Code Coverage') {
+      steps {
+        script {
+          echo "Generating code coverage report..."
+          if (isUnix()) {
+            sh "mvn -B jacoco:report"
+          } else {
+            bat "mvn -B jacoco:report"
+          }
+        }
+      }
+      post {
+        always {
+          // Publish JaCoCo coverage report
+          jacoco(
+            execPattern: 'target/jacoco.exec',
+            classPattern: 'target/classes',
+            sourcePattern: 'src/main/java',
+            exclusionPattern: 'src/test*'
+          )
+        }
+      }
+    }
+
+    stage('Integration Tests') {
+      steps {
+        script {
+          echo "Running integration tests..."
+          if (isUnix()) {
+            sh "mvn -B verify -DskipUnitTests"
+          } else {
+            bat "mvn -B verify -DskipUnitTests"
+          }
+        }
+      }
+      post {
+        always {
+          // Publish Integration test results
+          junit allowEmptyResults: true, testResults: 'target/failsafe-reports/*.xml'
+        }
+      }
+    }
+
+    stage('Mutation Tests') {
+      steps {
+        script {
+          echo "Running mutation tests with PITest..."
+          if (isUnix()) {
+            sh "mvn -B org.pitest:pitest-maven:mutationCoverage"
+          } else {
+            bat "mvn -B org.pitest:pitest-maven:mutationCoverage"
+          }
+        }
+      }
+      post {
+        always {
+          // Archive PITest mutation reports
+          publishHTML(target: [
+            allowMissing: true,
+            alwaysLinkToLastBuild: true,
+            keepAll: true,
+            reportDir: 'target/pit-reports',
+            reportFiles: 'index.html',
+            reportName: 'PITest Mutation Report'
+          ])
         }
       }
     }
@@ -169,40 +239,82 @@ pipeline {
       }
     }
 
-    stage('Deploy') {
+    stage('Deploy to Hosting Environment 1: Docker Containers') {
       when {
         expression { return env.DEPLOY == 'true' }
       }
       steps {
         script {
-          if (env.TARGET_ENV == 'staging') {
-            echo "Deploying image ${env.IMAGE_NAME}:${env.IMAGE_TAG} to STAGING"
+          echo "=== HOSTING ENVIRONMENT 1: Docker Containers ==="
+          echo "Deploying ${env.TARGET_ENV} environment..."
 
-            // Generate docker-compose.staging.yml from template by substituting IMAGE_NAME and IMAGE_TAG
-            def localTemplate = 'deploy/docker-compose.staging.yml.template'
-            def localGenerated = "deploy/docker-compose.staging.yml"
+          // Generate docker-compose from template
+          def localTemplate = 'deploy/docker-compose.staging.yml.template'
+          def localGenerated = "deploy/docker-compose.staging.yml"
 
-            if (isUnix()) {
-              sh "sed -e 's|\\${IMAGE_NAME}|${env.IMAGE_NAME}|g' -e 's|\\${IMAGE_TAG}|${env.IMAGE_TAG}|g' ${localTemplate} > ${localGenerated} || true"
-            } else {
-              bat """powershell -Command "(Get-Content ${localTemplate}) -replace '\\\\\\\$\\{IMAGE_NAME\\}', '${env.IMAGE_NAME}' -replace '\\\\\\\$\\{IMAGE_TAG\\}', '${env.IMAGE_TAG}' | Set-Content ${localGenerated}" """
-            }
+          if (isUnix()) {
+            sh "sed -e 's|\\${IMAGE_NAME}|${env.IMAGE_NAME}|g' -e 's|\\${IMAGE_TAG}|${env.IMAGE_TAG}|g' ${localTemplate} > ${localGenerated} || true"
+          } else {
+            bat """powershell -Command "(Get-Content ${localTemplate}) -replace '\\\\\\\$\\{IMAGE_NAME\\}', '${env.IMAGE_NAME}' -replace '\\\\\\\$\\{IMAGE_TAG\\}', '${env.IMAGE_TAG}' | Set-Content ${localGenerated}" """
+          }
 
-            // LOCAL DEPLOYMENT: Run docker-compose directly on Jenkins agent (Windows with Docker Desktop)
-            echo "Deploying to local Docker Desktop..."
-            if (isUnix()) {
-              sh "cd deploy && docker-compose -f docker-compose.staging.yml pull"
-              sh "cd deploy && docker-compose -f docker-compose.staging.yml up -d --remove-orphans"
-            } else {
-              bat "cd deploy && docker-compose -f docker-compose.staging.yml pull"
-              bat "cd deploy && docker-compose -f docker-compose.staging.yml up -d --remove-orphans"
-            }
+          // Deploy to Docker containers
+          if (isUnix()) {
+            sh "cd deploy && docker-compose -f docker-compose.staging.yml pull"
+            sh "cd deploy && docker-compose -f docker-compose.staging.yml up -d --remove-orphans"
+          } else {
+            bat "cd deploy && docker-compose -f docker-compose.staging.yml pull"
+            bat "cd deploy && docker-compose -f docker-compose.staging.yml up -d --remove-orphans"
+          }
 
-            echo "Staging deployed locally on Docker Desktop."
-            echo "Access at: http://localhost:8080/swagger-ui"
+          echo "✅ Deployed to Docker containers (${env.TARGET_ENV})"
+          echo "Container accessible at: http://localhost:8080/swagger-ui"
+        }
+      }
+    }
 
-          } else if (env.TARGET_ENV == 'prod') {
-            echo "Prod deploy steps are placeholders. Recommend using Azure App Service for Containers or ACI for simple deployments."
+    stage('Deploy to Hosting Environment 2: Local/Direct') {
+      when {
+        expression { return env.DEPLOY == 'true' && env.TARGET_ENV == 'dev' }
+      }
+      steps {
+        script {
+          echo "=== HOSTING ENVIRONMENT 2: Local Direct Deployment ==="
+          echo "Running application directly (non-containerized) for dev environment..."
+          
+          // For dev branches, run the JAR directly as a background process
+          if (isUnix()) {
+            sh """
+              pkill -f 'psoft-g1.*jar' || true
+              nohup java -jar target/psoft-g1-*.jar --spring.profiles.active=dev > app-dev.log 2>&1 &
+              echo \$! > app-dev.pid
+            """
+          } else {
+            bat """
+              taskkill /F /FI "WINDOWTITLE eq psoft-dev*" || echo No existing process
+              start "psoft-dev" /B java -jar target\\psoft-g1-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+            """
+          }
+
+          echo "✅ Deployed directly to local (dev environment)"
+          echo "Direct deployment accessible at: http://localhost:8081 (if configured)"
+        }
+      }
+    }
+
+    stage('Verify Deployment') {
+      when {
+        expression { return env.DEPLOY == 'true' }
+      }
+      steps {
+        script {
+          echo "Verifying deployment..."
+          sleep(time: 10, unit: 'SECONDS')
+          
+          if (isUnix()) {
+            sh "curl -f http://localhost:8080/actuator/health || echo 'Health check failed'"
+          } else {
+            bat "curl -f http://localhost:8080/actuator/health || echo Health check failed"
           }
         }
       }
