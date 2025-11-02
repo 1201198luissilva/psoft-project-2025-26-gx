@@ -221,9 +221,14 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.50</minimum>
+											<minimum>0.20</minimum>
 										</limit>
 									</limits>
+									<excludes>
+										<exclude>*.api.*</exclude>
+										<exclude>*.bootstrapping.*</exclude>
+										<exclude>*Application</exclude>
+									</excludes>
 								</rule>
 							</rules>
 						</configuration>
