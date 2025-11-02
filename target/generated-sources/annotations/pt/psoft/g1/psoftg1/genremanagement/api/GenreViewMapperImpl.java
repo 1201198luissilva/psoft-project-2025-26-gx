@@ -11,8 +11,8 @@ import pt.psoft.g1.psoftg1.genremanagement.services.GenreLendingsPerMonthDTO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-31T15:58:56+0000",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251001-1143, environment: Java 21.0.8 (Eclipse Adoptium)"
+    date = "2025-11-02T18:45:27+0000",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.17 (Eclipse Adoptium)"
 )
 @Component
 public class GenreViewMapperImpl extends GenreViewMapper {
@@ -106,12 +106,12 @@ public class GenreViewMapperImpl extends GenreViewMapper {
         }
 
         List<GenreLendingsView> lendingsCount = null;
-        Integer month = null;
         Integer year = null;
+        Integer month = null;
 
         lendingsCount = toGenreAvgLendingsView( dto.getValues() );
-        month = dto.getMonth();
         year = dto.getYear();
+        month = dto.getMonth();
 
         GenreLendingsCountPerMonthView genreLendingsCountPerMonthView = new GenreLendingsCountPerMonthView( year, month, lendingsCount );
 
@@ -139,12 +139,12 @@ public class GenreViewMapperImpl extends GenreViewMapper {
         }
 
         List<GenreLendingsView> durationAverages = null;
-        Integer month = null;
         Integer year = null;
+        Integer month = null;
 
         durationAverages = toGenreAvgLendingsView( dto.getValues() );
-        month = dto.getMonth();
         year = dto.getYear();
+        month = dto.getMonth();
 
         GenreLendingsAvgPerMonthView genreLendingsAvgPerMonthView = new GenreLendingsAvgPerMonthView( year, month, durationAverages );
 
