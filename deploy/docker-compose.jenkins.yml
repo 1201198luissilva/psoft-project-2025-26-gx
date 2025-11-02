@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  jenkins-docker:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: jenkins-docker
+    privileged: true
+    user: root
+    ports:
+      - "8081:8080"  # Jenkins web UI on port 8081 (to not conflict with your app)
+      - "50001:50000"  # Jenkins agent port
+    volumes:
+      # Mount Docker socket to allow Jenkins to build Docker images
+      - /var/run/docker.sock:/var/run/docker.sock
+      - jenkins_home:/var/jenkins_home
+      # Mount your project directory
+      - ../:/workspace
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - JENKINS_OPTS=--prefix=/jenkins
+    restart: unless-stopped
+    networks:
+      - jenkins-network
+
+  # Optional: Docker-in-Docker for building images
+  docker-dind:
+    image: docker:dind
+    container_name: jenkins-docker-dind
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/lib/docker
+    networks:
+      - jenkins-network
+    command: --storage-driver=overlay2
+
+volumes:
+  jenkins_home:
+    driver: local
+  jenkins-docker-certs:
+    driver: local
+  jenkins-data:
+    driver: local
+
+networks:
+  jenkins-network:
+    driver: bridge
