@@ -128,30 +128,6 @@ pipeline {
       }
     }
 
-    stage('Code Coverage') {
-      steps {
-        script {
-          echo "Generating code coverage report..."
-          if (isUnix()) {
-            sh "mvn -B jacoco:report"
-          } else {
-            bat "mvn -B jacoco:report"
-          }
-        }
-      }
-      post {
-        always {
-          // Publish JaCoCo coverage report
-          jacoco(
-            execPattern: 'target/jacoco.exec',
-            classPattern: 'target/classes',
-            sourcePattern: 'src/main/java',
-            exclusionPattern: 'src/test*'
-          )
-        }
-      }
-    }
-
     stage('Integration Tests') {
       steps {
         script {
@@ -184,15 +160,22 @@ pipeline {
       }
       post {
         always {
-          // Archive PITest mutation reports
-          publishHTML(target: [
-            allowMissing: true,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: 'target/pit-reports',
-            reportFiles: 'index.html',
-            reportName: 'PITest Mutation Report'
-          ])
+          // Archive PITest mutation reports (requires HTML Publisher plugin)
+          script {
+            try {
+              publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'target/pit-reports',
+                reportFiles: 'index.html',
+                reportName: 'PITest Mutation Report'
+              ])
+            } catch (Exception e) {
+              echo "Skipping HTML report publishing (plugin not available): ${e.message}"
+              echo "PITest reports are still available in target/pit-reports/"
+            }
+          }
         }
       }
     }
@@ -331,15 +314,9 @@ pipeline {
       echo "Build failed: ${currentBuild.fullDisplayName}"
     }
     always {
-      // Clean workspace on the agent to avoid leaving large files
-      // Note: cleanWs requires the Workspace Cleanup plugin
-      script {
-        try {
-          cleanWs()
-        } catch (Exception e) {
-          echo "Workspace cleanup skipped (plugin not available): ${e.message}"
-        }
-      }
+      // Clean workspace - using deleteDir instead of cleanWs (no plugin required)
+      echo "Cleaning workspace..."
+      deleteDir()
     }
   }
 }
