@@ -19,6 +19,7 @@ C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\bookmanagement\services\GenreBookCountDTO.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\genremanagement\services\GenreService.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\usermanagement\model\Password.java
+C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\external\service\BookExternalService.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\genremanagement\api\GenreLendingsCountPerMonthView.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\lendingmanagement\infrastructure\repositories\impl\SpringDataFineRepository.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\shared\model\Photo.java
@@ -60,6 +61,7 @@ C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\lendingmanagement\services\SetLendingReturnedRequest.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\readermanagement\api\ReaderViewMapper.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\authormanagement\services\AuthorMapper.java
+C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\external\service\BookExternalServiceImpl.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\readermanagement\repositories\ReaderRepository.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\usermanagement\model\User.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\exceptions\FileStorageException.java
@@ -78,10 +80,12 @@ C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\readermanagement\api\ReaderAverageView.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\shared\infrastructure\repositories\impl\SpringDataPhotoRepository.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\authormanagement\services\CreateAuthorRequest.java
+C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\configuration\OpenLibraryApiConfig.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\lendingmanagement\services\LendingMapper.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\usermanagement\services\EditUserMapper.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\shared\api\MapperInterface.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\shared\api\ListResponse.java
+C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\external\service\GoogleBooksResponse.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\genremanagement\api\GenreLendingsView.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\PsoftG1Application.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\authormanagement\api\AuthorView.java
@@ -95,6 +99,7 @@ C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\bookmanagement\api\BookCountView.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\authormanagement\api\AuthorLendingView.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\usermanagement\api\UserViewMapper.java
+C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\external\service\OpenLibraryResponse.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\genremanagement\services\GenreLendingsPerMonthDTO.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\usermanagement\services\UserService.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\lendingmanagement\api\LendingsAverageDurationView.java
@@ -143,4 +148,5 @@ C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\lendingmanagement\repositories\FineRepository.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\authormanagement\services\AuthorService.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\exceptions\NotFoundException.java
+C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\bookmanagement\api\IsbnResponse.java
 C:\Users\luis.silva\Projects\psoft-project-2025-26-gx\src\main\java\pt\psoft\g1\psoftg1\bookmanagement\model\Description.java

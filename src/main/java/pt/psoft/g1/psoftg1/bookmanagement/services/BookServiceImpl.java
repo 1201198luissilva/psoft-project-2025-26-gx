@@ -20,6 +20,7 @@ import pt.psoft.g1.psoftg1.readermanagement.model.ReaderDetails;
 import pt.psoft.g1.psoftg1.readermanagement.repositories.ReaderRepository;
 import pt.psoft.g1.psoftg1.shared.repositories.PhotoRepository;
 import pt.psoft.g1.psoftg1.shared.services.Page;
+import pt.psoft.g1.psoftg1.external.service.BookExternalService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class BookServiceImpl implements BookService {
 	private final AuthorRepository authorRepository;
 	private final PhotoRepository photoRepository;
 	private final ReaderRepository readerRepository;
+	private final BookExternalService bookExternalService;
 
 	@Value("${suggestionsLimitPerGenre}")
 	private long suggestionsLimitPerGenre;
@@ -206,5 +208,10 @@ public class BookServiceImpl implements BookService {
 			query = new SearchBooksQuery("", "", "");
 		}
 		return bookRepository.searchBooks(page, query);
+	}
+
+	@Override
+	public Optional<String> getIsbnByTitle(String title) {
+		return bookExternalService.getIsbnByTitle(title);
 	}
 }

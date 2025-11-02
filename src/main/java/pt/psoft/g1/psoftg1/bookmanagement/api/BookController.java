@@ -239,5 +239,18 @@ public class BookController {
         final var bookList = bookService.searchBooks(request.getPage(), request.getQuery());
         return new ListResponse<>(bookViewMapper.toBookView(bookList));
     }
+
+    @Operation(summary = "Get ISBN by book title from external APIs")
+    @GetMapping("/isbn-by-title")
+    public ResponseEntity<IsbnResponse> getIsbnByTitle(@RequestParam("title") String title) {
+        var isbnOptional = bookService.getIsbnByTitle(title);
+        if (isbnOptional.isPresent()) {
+            // For now, we don't track the source, but we could enhance this
+            IsbnResponse response = new IsbnResponse(isbnOptional.get(), "external_api");
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
 

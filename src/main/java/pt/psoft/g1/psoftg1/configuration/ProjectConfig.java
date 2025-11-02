@@ -26,6 +26,14 @@ public class ProjectConfig {
     @Value("${external.api.googlebooks.key}")
     private String googleBooksApiKey;
 
+    @Value("${external.api.openlib.key}")
+    private String openLibApiKey;
+
+    public boolean isExternalApiEnabled() {
+        return googleBooksApiKey != null && !googleBooksApiKey.isEmpty()
+                || openLibApiKey != null && !openLibApiKey.isEmpty();
+    }
+
     // Add more external API properties as needed
     // @Value("${external.api.another.url}")
     // private String anotherApiUrl;
