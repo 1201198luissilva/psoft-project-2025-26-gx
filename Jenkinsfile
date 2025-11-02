@@ -7,11 +7,12 @@
 // - prod: placeholder for Azure deploy (recommend Azure App Service for Containers or Azure Container Instances for simplicity)
 
 pipeline {
-  agent any
-
-  tools {
-    maven 'Maven-3.9.11'
-    jdk 'OpenJDK-17'
+  agent {
+    docker {
+      image 'maven:3.9.6-eclipse-temurin-17-alpine'
+      args '-v /var/run/docker.sock:/var/run/docker.sock'
+      label 'docker'
+    }
   }
 
   options {
