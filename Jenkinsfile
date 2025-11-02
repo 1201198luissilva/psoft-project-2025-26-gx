@@ -332,7 +332,14 @@ pipeline {
     }
     always {
       // Clean workspace on the agent to avoid leaving large files
-      cleanWs()
+      // Note: cleanWs requires the Workspace Cleanup plugin
+      script {
+        try {
+          cleanWs()
+        } catch (Exception e) {
+          echo "Workspace cleanup skipped (plugin not available): ${e.message}"
+        }
+      }
     }
   }
 }
