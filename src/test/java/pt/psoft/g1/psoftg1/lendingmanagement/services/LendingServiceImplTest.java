@@ -166,14 +166,150 @@ class LendingServiceImplTest {
         assertDoesNotThrow(
                 () -> lendingService.setReturned(year + "/" + seq, request, notReturnedLending.getVersion()));
     }
-/*
+
+    @Test
+    void testSetReturnedWithCommentary() {
+        int year = 2024, seq = 777;
+        var notReturnedLending = lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                year,
+                seq,
+                LocalDate.of(2024, 3,1),
+                null,
+                15,
+                300));
+        var request = new SetLendingReturnedRequest("Excellent book!");
+        var returnedLending = lendingService.setReturned(year + "/" + seq, request, notReturnedLending.getVersion());
+        assertNotNull(returnedLending.getReturnedDate());
+    }
+
     @Test
     void testGetAverageDuration() {
+        // Create and save multiple returned lendings
+        lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                2023,
+                1,
+                LocalDate.of(2023, 1,1),
+                LocalDate.of(2023, 1,10),
+                15,
+                300));
+        lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                2023,
+                2,
+                LocalDate.of(2023, 2,1),
+                LocalDate.of(2023, 2,15),
+                15,
+                300));
+        
+        Double avg = lendingService.getAverageDuration();
+        assertNotNull(avg);
+        assertTrue(avg > 0);
     }
 
     @Test
     void testGetOverdue() {
+        // Create an overdue lending
+        lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                2023,
+                100,
+                LocalDate.of(2023, 1,1),
+                null,
+                15,
+                300));
+        
+        var overdueLendings = lendingService.getOverdue(null);
+        assertNotNull(overdueLendings);
+        assertTrue(overdueLendings.size() > 0);
     }
 
- */
+    @Test
+    void testListByReaderNumberAndIsbn() {
+        var request = new CreateLendingRequest("9782826012092",
+                LocalDate.now().getYear() + "/1");
+        lendingService.create(request);
+        
+        var lendings = lendingService.listByReaderNumberAndIsbn(
+                LocalDate.now().getYear() + "/1",
+                "9782826012092",
+                java.util.Optional.empty());
+        assertNotNull(lendings);
+        assertTrue(lendings.size() > 0);
+    }
+
+    @Test
+    void testListByReaderNumberAndIsbnWithReturnedFilter() {
+        var request = new CreateLendingRequest("9782826012092",
+                LocalDate.now().getYear() + "/1");
+        var newLending = lendingService.create(request);
+        
+        // Test with not returned filter
+        var notReturnedLendings = lendingService.listByReaderNumberAndIsbn(
+                LocalDate.now().getYear() + "/1",
+                "9782826012092",
+                java.util.Optional.of(false));
+        assertNotNull(notReturnedLendings);
+        assertTrue(notReturnedLendings.size() > 0);
+        
+        // Return the lending
+        lendingService.setReturned(newLending.getLendingNumber(), 
+                new SetLendingReturnedRequest(null), 
+                newLending.getVersion());
+        
+        // Test with returned filter
+        var returnedLendings = lendingService.listByReaderNumberAndIsbn(
+                LocalDate.now().getYear() + "/1",
+                "9782826012092",
+                java.util.Optional.of(true));
+        assertNotNull(returnedLendings);
+        assertTrue(returnedLendings.size() > 0);
+    }
+
+    @Test
+    void testSearchLendings() {
+        var request = new CreateLendingRequest("9782826012092",
+                LocalDate.now().getYear() + "/1");
+        lendingService.create(request);
+        
+        var query = new SearchLendingQuery(
+                LocalDate.now().getYear() + "/1",
+                "9782826012092",
+                null,
+                LocalDate.now().minusDays(1).toString(),
+                LocalDate.now().plusDays(1).toString());
+        
+        var lendings = lendingService.searchLendings(null, query);
+        assertNotNull(lendings);
+    }
+
+    @Test
+    void testGetAvgLendingDurationByIsbn() {
+        lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                2023,
+                10,
+                LocalDate.of(2023, 1,1),
+                LocalDate.of(2023, 1,10),
+                15,
+                300));
+        
+        Double avg = lendingService.getAvgLendingDurationByIsbn("9782826012092");
+        assertNotNull(avg);
+    }
+
+    @Test
+    void testCreateThrowsExceptionForNonExistentBook() {
+        var request = new CreateLendingRequest("9999999999999",
+                LocalDate.now().getYear() + "/1");
+        assertThrows(Exception.class, () -> lendingService.create(request));
+    }
+
+    @Test
+    void testCreateThrowsExceptionForNonExistentReader() {
+        var request = new CreateLendingRequest("9782826012092",
+                "9999/999");
+        assertThrows(Exception.class, () -> lendingService.create(request));
+    }
 }
