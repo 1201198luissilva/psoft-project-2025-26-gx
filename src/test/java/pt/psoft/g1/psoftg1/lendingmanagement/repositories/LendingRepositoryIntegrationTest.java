@@ -227,4 +227,122 @@ public class LendingRepositoryIntegrationTest {
         assertThat(overdueLendings).contains(notReturnedLending);
         assertThat(overdueLendings).doesNotContain(notReturnedAndNotOverdueLending);
     }
+
+    @Test
+    public void testFindByLendingNumberNotFound() {
+        Optional<Lending> found = lendingRepository.findByLendingNumber("9999/9999");
+        assertThat(found).isEmpty();
+    }
+
+    @Test
+    public void testListByReaderNumberAndIsbnEmpty() {
+        List<Lending> lendings = lendingRepository.listByReaderNumberAndIsbn("9999/9999", "9999999999999");
+        assertThat(lendings).isEmpty();
+    }
+
+    @Test
+    public void testGetCountFromCurrentYearMultipleLendings() {
+        var lending2 = lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                LocalDate.now().getYear(),
+                1000,
+                LocalDate.now(),
+                null,
+                15,
+                300));
+        var lending3 = lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                LocalDate.now().getYear(),
+                1001,
+                LocalDate.now(),
+                null,
+                15,
+                300));
+        int count = lendingRepository.getCountFromCurrentYear();
+        assertThat(count).isGreaterThanOrEqualTo(3);
+    }
+
+    @Test
+    public void testListOutstandingByReaderNumberEmpty() {
+        List<Lending> outstandingLendings = lendingRepository.listOutstandingByReaderNumber("9999/9999");
+        assertThat(outstandingLendings).isEmpty();
+    }
+
+    @Test
+    public void testGetOverdueWithPagination() {
+        // Create multiple overdue lendings
+        for (int i = 0; i < 5; i++) {
+            lendingRepository.save(Lending.newBootstrappingLending(book,
+                    readerDetails,
+                    2023,
+                    200 + i,
+                    LocalDate.of(2023, 1, 1 + i),
+                    null,
+                    15,
+                    300));
+        }
+        
+        Page page = new Page(1, 3);
+        List<Lending> overdueLendings = lendingRepository.getOverdue(page);
+        assertThat(overdueLendings).isNotEmpty();
+        assertThat(overdueLendings.size()).isLessThanOrEqualTo(3);
+    }
+
+    @Test
+    public void testSaveAndRetrieveLending() {
+        Lending newLending = new Lending(book, readerDetails, 5000, 14, 50);
+        Lending savedLending = lendingRepository.save(newLending);
+        
+        assertThat(savedLending).isNotNull();
+        assertThat(savedLending.getLendingNumber()).isEqualTo(newLending.getLendingNumber());
+        
+        Optional<Lending> retrieved = lendingRepository.findByLendingNumber(savedLending.getLendingNumber());
+        assertThat(retrieved).isPresent();
+        assertThat(retrieved.get().getLendingNumber()).isEqualTo(savedLending.getLendingNumber());
+        
+        lendingRepository.delete(savedLending);
+    }
+
+    @Test
+    public void testDeleteLending() {
+        Lending newLending = new Lending(book, readerDetails, 6000, 14, 50);
+        Lending savedLending = lendingRepository.save(newLending);
+        String lendingNumber = savedLending.getLendingNumber();
+        
+        lendingRepository.delete(savedLending);
+        
+        Optional<Lending> retrieved = lendingRepository.findByLendingNumber(lendingNumber);
+        assertThat(retrieved).isEmpty();
+    }
+
+    @Test
+    public void testGetAverageDurationWithNoReturnedLendings() {
+        // Delete the existing lending that was returned
+        lendingRepository.delete(lending);
+        
+        // Create a not returned lending
+        var notReturnedLending = lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                2023,
+                500,
+                LocalDate.of(2023, 1,1),
+                null,
+                15,
+                300));
+        
+        Double averageDuration = lendingRepository.getAverageDuration();
+        // Should handle the case appropriately (either null or 0)
+        assertTrue(averageDuration == null || averageDuration == 0);
+        
+        lendingRepository.delete(notReturnedLending);
+        // Restore the original lending
+        lending = lendingRepository.save(Lending.newBootstrappingLending(book,
+                readerDetails,
+                LocalDate.now().getYear(),
+                999,
+                LocalDate.of(LocalDate.now().getYear(), 1,1),
+                LocalDate.of(LocalDate.now().getYear(), 1,11),
+                15,
+                300));
+    }
 }

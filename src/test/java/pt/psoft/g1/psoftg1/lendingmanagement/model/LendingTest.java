@@ -131,4 +131,166 @@ class LendingTest {
         assertNull(lending.getReturnedDate());
     }
 
+    @Test
+    void testSetReturnedWithCommentary(){
+        Lending lending = new Lending(book, readerDetails, 1, lendingDurationInDays, fineValuePerDayInCents);
+        String commentary = "Great book!";
+        lending.setReturned(0, commentary);
+        assertEquals(LocalDate.now(), lending.getReturnedDate());
+    }
+
+    @Test
+    void testSetReturnedThrowsExceptionWhenAlreadyReturned(){
+        Lending lending = new Lending(book, readerDetails, 1, lendingDurationInDays, fineValuePerDayInCents);
+        lending.setReturned(0, null);
+        assertThrows(IllegalArgumentException.class, () -> lending.setReturned(0, "Another comment"));
+    }
+
+    @Test
+    void testSetReturnedThrowsStaleObjectStateException(){
+        Lending lending = new Lending(book, readerDetails, 1, lendingDurationInDays, fineValuePerDayInCents);
+        assertThrows(org.hibernate.StaleObjectStateException.class, () -> lending.setReturned(999, null));
+    }
+
+    @Test
+    void testGetDaysDelayedWithOverdueLending(){
+        // Create a lending that is already overdue (started in the past)
+        Lending lending = Lending.newBootstrappingLending(
+                book,
+                readerDetails,
+                2024,
+                1,
+                LocalDate.now().minusDays(30),
+                null,
+                15,
+                fineValuePerDayInCents
+        );
+        assertTrue(lending.getDaysDelayed() > 0);
+    }
+
+    @Test
+    void testGetDaysDelayedWithReturnedLateLending(){
+        // Create a lending that was returned late
+        Lending lending = Lending.newBootstrappingLending(
+                book,
+                readerDetails,
+                2024,
+                1,
+                LocalDate.now().minusDays(30),
+                LocalDate.now().minusDays(10),
+                15,
+                fineValuePerDayInCents
+        );
+        assertEquals(5, lending.getDaysDelayed()); // 30-15-10 = 5 days late
+    }
+
+    @Test
+    void testGetDaysUntilReturnWhenAlreadyReturned(){
+        Lending lending = new Lending(book, readerDetails, 1, lendingDurationInDays, fineValuePerDayInCents);
+        lending.setReturned(0, null);
+        assertEquals(Optional.empty(), lending.getDaysUntilReturn());
+    }
+
+    @Test
+    void testGetDaysUntilReturnWhenOverdue(){
+        // Create an overdue lending
+        Lending lending = Lending.newBootstrappingLending(
+                book,
+                readerDetails,
+                2024,
+                1,
+                LocalDate.now().minusDays(30),
+                null,
+                15,
+                fineValuePerDayInCents
+        );
+        assertEquals(Optional.empty(), lending.getDaysUntilReturn());
+    }
+
+    @Test
+    void testGetDaysOverdueWhenOverdue(){
+        // Create an overdue lending
+        Lending lending = Lending.newBootstrappingLending(
+                book,
+                readerDetails,
+                2024,
+                1,
+                LocalDate.now().minusDays(30),
+                null,
+                15,
+                fineValuePerDayInCents
+        );
+        assertTrue(lending.getDaysOverdue().isPresent());
+        assertTrue(lending.getDaysOverdue().get() > 0);
+    }
+
+    @Test
+    void testGetFineValueInCents(){
+        Lending lending = new Lending(book, readerDetails, 1, lendingDurationInDays, fineValuePerDayInCents);
+        assertEquals(Optional.empty(), lending.getFineValueInCents());
+    }
+
+    @Test
+    void testGetFineValueInCentsWhenOverdue(){
+        // Create an overdue lending (started 20 days ago with 15 day duration = 5 days overdue)
+        Lending lending = Lending.newBootstrappingLending(
+                book,
+                readerDetails,
+                2024,
+                1,
+                LocalDate.now().minusDays(20),
+                null,
+                15,
+                200 // Use explicit value instead of property
+        );
+        assertTrue(lending.getFineValueInCents().isPresent());
+        assertTrue(lending.getFineValueInCents().get() > 0);
+        assertEquals(5 * 200, lending.getFineValueInCents().get()); // 5 days * 200 cents/day
+    }
+
+    @Test
+    void testGetFineValuePerDayInCents(){
+        Lending lending = new Lending(book, readerDetails, 1, lendingDurationInDays, fineValuePerDayInCents);
+        assertEquals(fineValuePerDayInCents, lending.getFineValuePerDayInCents());
+    }
+
+    @Test
+    void testNewBootstrappingLendingWithNullBook(){
+        assertThrows(IllegalArgumentException.class, () -> 
+            Lending.newBootstrappingLending(null, readerDetails, 2024, 1, LocalDate.now(), null, 15, 200));
+    }
+
+    @Test
+    void testNewBootstrappingLendingWithNullReader(){
+        assertThrows(IllegalArgumentException.class, () -> 
+            Lending.newBootstrappingLending(book, null, 2024, 1, LocalDate.now(), null, 15, 200));
+    }
+
+    @Test
+    void testNewBootstrappingLendingCreatesCorrectly(){
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate returnedDate = LocalDate.of(2024, 1, 11);
+        Lending lending = Lending.newBootstrappingLending(
+                book,
+                readerDetails,
+                2024,
+                5,
+                startDate,
+                returnedDate,
+                15,
+                200
+        );
+        assertNotNull(lending);
+        assertEquals("2024/5", lending.getLendingNumber());
+        assertEquals(startDate, lending.getStartDate());
+        assertEquals(returnedDate, lending.getReturnedDate());
+        assertEquals(startDate.plusDays(15), lending.getLimitDate());
+    }
+
+    @Test
+    void testGetVersion(){
+        Lending lending = new Lending(book, readerDetails, 1, lendingDurationInDays, fineValuePerDayInCents);
+        assertEquals(0, lending.getVersion());
+    }
+
 }
