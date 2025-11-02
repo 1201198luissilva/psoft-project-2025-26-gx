@@ -2,7 +2,6 @@ package pt.psoft.g1.psoftg1.readermanagement.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.Setter;
 
 import java.util.List;
 

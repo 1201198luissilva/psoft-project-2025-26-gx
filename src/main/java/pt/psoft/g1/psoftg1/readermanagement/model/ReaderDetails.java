@@ -1,6 +1,5 @@
 package pt.psoft.g1.psoftg1.readermanagement.model;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

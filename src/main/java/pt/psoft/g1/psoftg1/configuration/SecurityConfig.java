@@ -93,6 +93,7 @@ public class SecurityConfig {
                 .orElseThrow(() -> new UsernameNotFoundException(format("User: %s, not found", username)));
     }
 
+    @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Enable CORS and disable CSRF
